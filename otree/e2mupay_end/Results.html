@@ -1,0 +1,17 @@
+{{ block title }}
+    Thank you
+{{ endblock }}
+
+{{ block content }}
+
+    <p>Your payment data have been saved.</p>
+
+    <div class="alert alert-danger mb-4 text-center">
+        <p>Please ensure you keep this payment code until you have received your payment:</p>
+        <p class="display-4 font-monospace fw-bold">{{ code_display }}</p>
+        <p class="fw-bold mb-0">You should quote this payment code whenever contacting E²MU about your payment.</p>
+    </div>
+
+    <p>This study has completed.</p>
+
+{{ endblock }}
