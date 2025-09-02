@@ -1,4 +1,4 @@
-# E²MU Payment App
+# E²MU Payment Apps
 
 A payment collection system for oTree experiments that encrypts participant payment data using OpenPGP encryption. Encrypts payment data to lab manager. Can be adapted for use at other labs. Intended to provide a “best effort” mitigation when using out-of-state service providers.
 
@@ -10,7 +10,7 @@ This project is licensed under the GNU Lesser General Public License version 3.0
 
 ## Overview
 
-The E²MU Payment App consists of two oTree applications that handle secure collection of participant payment information:
+The E²MU Payment Apps consist of two oTree apps that handle secure collection of participant payment information:
 
 - **e2mupay_start**: Initializes the payment system and records session start time
 - **e2mupay_end**: Collects encrypted payment data from participants
@@ -48,13 +48,15 @@ otree/
 
 ### For E²MU Experimenters
 
-1. **Set payment amount in your experiment**:
+1. **Put e2mupay\_start and e2mupay\_end into your project (as is!)**. [Click here](https://github.com/mrpg/e2mupay/archive/refs/heads/master.zip) to download this whole repository. You can find the necessary apps in the `otree` folder.
+
+2. **Set payment amount in your experiment**:
    ```python
    # Somewhere in your experiment (probably at the end)
    player.participant.vars["e2mupay_amount"] = cu(17.42)  # Set final payment amount here
    ```
 
-2. **Configure app sequence**:
+3. **Configure app sequence**:
    ```python
    # In settings.py
    SESSION_CONFIGS = [
@@ -71,6 +73,8 @@ otree/
        ),
    ]
    ```
+
+*Note*: `otree/dummy` contains an example app. In fact, `otree` is an “oTree project.”
 
 ### For External Labs
 
@@ -111,7 +115,7 @@ Common timezone examples:
 
 #### 3. Remove Branding
 
-Instead of E²MU, insert your lab's name. E²MU will not assist you in any way if you mistakenly send subjects to us, our encrypt payment data to E²MU's lab manager. That's your problem.
+Instead of E²MU, insert your lab's name. E²MU will not assist you in any way if you mistakenly send subjects to us, or encrypt payment data to E²MU's lab manager. That's your problem.
 
 Also, you might need to change some of the payment methods or the prelude to the form.
 
