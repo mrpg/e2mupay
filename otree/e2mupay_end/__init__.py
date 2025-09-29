@@ -37,7 +37,7 @@ class Player(BasePlayer):
     code = models.StringField(initial="")
     start_ = models.StringField(initial="")
     end_ = models.StringField(initial="")
-    amount = models.CurrencyField()
+    amount = models.FloatField()
     pay_to = models.LongStringField(blank=True)
 
 

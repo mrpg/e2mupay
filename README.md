@@ -53,7 +53,7 @@ otree/
 2. **Set payment amount in your experiment**:
    ```python
    # Somewhere in your experiment (probably at the end)
-   player.participant.vars["e2mupay_amount"] = cu(17.42)  # Set final payment amount here
+   player.participant.vars["e2mupay_amount"] = 17.42  # Set final payment in real currency
    ```
 
 3. **Configure app sequence**:
