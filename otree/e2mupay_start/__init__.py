@@ -12,10 +12,10 @@ from datetime import datetime, timezone
 from otree.api import *
 
 doc = """
-E²MU Payment App 1
+E²MU Payment App (start)
 """
 
-__version__ = "3.0.0"
+__version__ = "4.0.0"
 
 
 def init():
