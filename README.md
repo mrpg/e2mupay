@@ -1,6 +1,6 @@
-# E²MU Payment Apps
+# E²MU Contact Collection Apps
 
-A payment collection system for oTree experiments that encrypts participant payment data using OpenPGP encryption. Encrypts payment data to lab manager. Can be adapted for use at other labs. Intended to provide a “best effort” mitigation when using out-of-state service providers.
+A contact information collection system for oTree experiments that encrypts participant contact data using OpenPGP encryption. Encrypts contact data to lab manager. Can be adapted for use at other labs. Intended to provide a "best effort" mitigation when using out-of-state service providers.
 
 ## License
 
@@ -10,24 +10,24 @@ This project is licensed under the GNU Lesser General Public License version 3.0
 
 ## Overview
 
-The E²MU Payment Apps consist of two oTree apps that handle secure collection of participant payment information:
+The E²MU Contact Collection Apps consist of two oTree apps that handle secure collection of participant contact information:
 
-- **e2mupay_start**: Initializes the payment system and records session start time
-- **e2mupay_end**: Collects encrypted payment data from participants
+- **e2mupay_start**: Initializes the contact collection system and records session start time
+- **e2mupay_end**: Collects encrypted contact data from participants
 
-Payment data is encrypted client-side using OpenPGP.js before being sent to the server, ensuring participant privacy and data security. Only the lab manager can decrypt the payment data. This makes collecting payment data secure even when using other people's servers.
+Contact data is encrypted client-side using OpenPGP.js before being sent to the server, ensuring participant privacy and data security. Only the lab manager can decrypt the contact data. This makes collecting contact data secure even when using other people's servers.
 
 ## Project Structure
 
 ```
 otree/
-├── e2mupay_start/          # Start app - initializes payment system
+├── e2mupay_start/          # Start app - initializes contact collection system
 │   ├── __init__.py         # App logic and timezone configuration
 │   ├── Hello.html          # Simple page template
 │   └── e2mupay_static.tgz  # Contains OpenPGP.js and encryption key
-├── e2mupay_end/            # End app - collects payment data
+├── e2mupay_end/            # End app - collects contact data
 │   ├── __init__.py         # App logic and timezone configuration
-│   ├── PaymentData.html    # Payment data collection form
+│   ├── PaymentData.html    # Contact data collection form
 │   └── Results.html        # Confirmation page
 ├── dummy/                  # Example app showing usage
 │   └── __init__.py         # Sets e2mupay_amount variable
@@ -36,10 +36,10 @@ otree/
 
 ## Features
 
-- **Client-side encryption**: All payment data is encrypted using OpenPGP before transmission
+- **Client-side encryption**: All contact data is encrypted using OpenPGP before transmission
 - **Static files auto-extract**: Experimenters only need e2mupay\_start and e2mupay\_end
-- **Multiple payment methods**: Supports PayID and Australian bank accounts
-- **Form validation**: Client-side validation for all payment fields
+- **Simple contact collection**: Collects first name, last name, and email address only
+- **Form validation**: Client-side validation for all contact fields
 - **Payment codes**: Generates unique 9-character alphanumeric codes for each participant
 - **Timezone handling**: Configurable timezone for timestamp recording
 - **Bootstrap UI**: Modern, responsive interface
@@ -126,31 +126,27 @@ Also, you might need to change some of the payment methods or the prelude to the
 
 ## Usage
 
-### Payment Data Collection
+### Contact Data Collection
 
-The payment form collects:
+The contact form collects:
 - **Personal Information**:
-  - First name (must match bank account)
-  - Last name (must match bank account)  
-  - Email address (emergency contact only)
+  - First name
+  - Last name
+  - Email address
 
-- **Payment Method** (choose one):
-  - **PayID**: Email address or Australian mobile number (04xxxxxxxx)
-  - **Bank Account**: Account number (6-10 digits) and BSB (6 digits)
-
-#### Decrypting Payment Data
+#### Decrypting Contact Data
 
 **This step is only ever performed by the lab manager.**
 
 The data from the column `e2mupay_end.1.player.pay_to` can be decrypted on GNU/Linux using `sed 's/|/\n/g' | gpg`. Note how `|` is replaced by newline.
 
-The script `decrypt.py` contains a function that does this for you (useful for batch payments, requires [python-gnupg](https://github.com/vsajip/python-gnupg)).
+The script `decrypt.py` contains a function that does this for you (useful for batch processing, requires [python-gnupg](https://github.com/vsajip/python-gnupg)).
 
 ### Data Security
 
-- All payment data is encrypted client-side using OpenPGP.js
+- All contact data is encrypted client-side using OpenPGP.js
 - Only authorized officials can decrypt the data
-- Payment data is not linked to experimental behavior data
+- Contact data is not linked to experimental behavior data
 - Data remains within the state of Victoria (for E²MU!)
 
 ### Payment Codes
@@ -166,8 +162,8 @@ Each participant receives a unique 9-character payment code (format: XXX-XXX-XXX
 
 1. **e2mupay_start**: Records session start timestamp in `Australia/Melbourne` timezone
 2. **Your experiment**: Sets final payment amount using `player.participant.vars["e2mupay_amount"]`
-3. **e2mupay_end**: 
-   - Displays payment form with amount
+3. **e2mupay_end**:
+   - Displays contact form with payment amount
    - Validates all fields client-side
    - Encrypts data using OpenPGP public key
    - Stores encrypted data and payment metadata
@@ -179,8 +175,8 @@ The `Player` model in `e2mupay_end` stores:
 - `code`: 9-character payment code
 - `amount`: Payment amount from participant vars
 - `start_`: ISO timestamp from e2mupay\_start
-- `end_`: ISO timestamp from e2mupay\_end  
-- `pay_to`: Encrypted payment data string
+- `end_`: ISO timestamp from e2mupay\_end
+- `pay_to`: Encrypted contact data string
 
 ### Encryption Format
 
@@ -189,18 +185,12 @@ Encrypted data contains:
 LASTNAME, Firstname
 email@example.com
 
-PayID: payid@example.com
-OR
-Account: 123456789
-BSB:     123-456
-
 Additional metadata (NOT AUTHORITATIVE): session_code, participant_code, payment_code, amount
 ```
 
 ## Notes
 
 - The `e2mupay_start/Hello` page is not displayed (`is_displayed` returns `False`)
-- Payment form has a 60-minute timeout
-- BSB numbers are automatically formatted with dashes
+- Contact form has a 60-minute timeout
 - Form includes comprehensive client-side validation
 - Modal confirms data before encryption/submission

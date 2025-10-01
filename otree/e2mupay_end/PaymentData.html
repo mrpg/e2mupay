@@ -26,14 +26,14 @@
                 </div>
 
                 <p class="fst-italic my-5">
-                    This page securely collects your payment data and encrypts it before it is sent to the server. Your data will only be used by authorised officials for lawful purposes and kept within the state of Victoria. Your payment data will not be linked to your behaviour in this experiment, unless that is in your interest.
+                    This page securely collects your contact information and encrypts it before it is sent to the server. Your data will only be used by authorised officials for lawful purposes and kept within the state of Victoria. Your contact data will not be linked to your behaviour in this experiment, unless that is in your interest.
                 </p>
 
                 <!-- Personal Information -->
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="fname" class="form-label">First name (must match your bank account) <span class="text-danger">*</span></label>
+                            <label for="fname" class="form-label">First name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="fname" name="fname" required>
                             <div class="invalid-feedback">
                                 Please provide a valid first name.
@@ -42,7 +42,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="lname" class="form-label">Last name (must match your bank account) <span class="text-danger">*</span></label>
+                            <label for="lname" class="form-label">Last name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="lname" name="lname" required>
                             <div class="invalid-feedback">
                                 Please provide a valid last name.
@@ -52,92 +52,11 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="email" class="form-label">Email address (used only in emergencies) <span class="text-danger">*</span></label>
+                    <label for="email" class="form-label">Email address <span class="text-danger">*</span></label>
                     <input type="email" class="form-control" id="email" name="email" required>
                     <div class="invalid-feedback">
                         Please provide a valid email address.
                     </div>
-                </div>
-
-                <!-- Payment Method Selection -->
-                <div class="mb-4">
-                    <h6 class="form-label">Payment method <span class="text-danger">*</span></h6>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="paymentMethod" id="payidMethod" value="payid">
-                        <label class="form-check-label" for="payidMethod">
-                            PayID
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="paymentMethod" id="bankMethod" value="bank">
-                        <label class="form-check-label" for="bankMethod">
-                            Australian bank account
-                        </label>
-                    </div>
-                    <div class="invalid-feedback d-block" id="paymentMethodError" style="display: none !important;">
-                        Please select a payment method.
-                    </div>
-                </div>
-
-                <!-- PayID Section -->
-                <div id="payidSection" class="mb-4" style="display: none;">
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <h6 class="card-title">PayID details</h6>
-                            <div class="mb-3">
-                                <label for="payid" class="form-label">PayID <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control w-100" id="payid" name="payid" 
-                                       placeholder="Enter your PayID (email or mobile number)">
-                                <div class="form-text">
-                                    Enter your PayID (email address or Australian mobile number starting with 04)
-                                </div>
-                                <div class="invalid-feedback">
-                                    Please provide a valid PayID (email or Australian mobile number).
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bank Account Section -->
-                <div id="bankSection" class="mb-4" style="display: none;">
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <h6 class="card-title">Australian bank account</h6>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="mb-6">
-                                        <label for="account" class="form-label">Account number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control w-100" id="account" name="account" 
-                                               placeholder="Enter your account number" pattern="^[0-9]{6,10}$">
-                                        <div class="form-text">
-                                            Account number should be 6-10 digits
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            Please provide a valid Australian account number (6-10 digits).
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="bsb" class="form-label">BSB number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control w-100" id="bsb" name="bsb" 
-                                               placeholder="123-456" pattern="^[0-9]{3}-?[0-9]{3}$" maxlength="7">
-                                        <div class="form-text">
-                                            6 digits (e.g., 123-456)
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            Please provide a valid BSB number (6 digits).
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="alert alert-info mb-4">
-                    <strong>Note:</strong> You must provide either PayID <i>or</i> bank account details.
                 </div>
                 <button type="button" class="btn btn-primary btn-lg" id="submitButton">Submit</button>
             </div>
@@ -148,11 +67,11 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmationModalLabel">Review Payment Information</h5>
+                    <h5 class="modal-title" id="confirmationModalLabel">Review Contact Information</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Please review your payment information:</p>
+                    <p>Please review your contact information:</p>
                     <div class="border p-3 bg-light">
                         <pre id="dataPreview" style="white-space: pre-wrap; margin: 0;"></pre>
                     </div>
@@ -177,26 +96,18 @@
         const confirmSendButton = document.getElementById('confirmSend');
         const hiddenField = document.getElementById('payTo');
 
-        function totalPaymentData() {
+        function totalContactData() {
             const fname = document.getElementById('fname').value.trim();
             const lname = document.getElementById('lname').value.trim();
             const email = document.getElementById('email').value.trim();
-            const payid = document.getElementById('payid').value.trim();
-            const account = document.getElementById('account').value.trim();
-            const bsb = document.getElementById('bsb').value.trim();
-            
+
             const name = `${lname.toLocaleUpperCase()}, ${fname}`;
 
-            if (!fname || !lname || (!payid && (!account || !bsb)) || (payid && (account || bsb))) {
+            if (!fname || !lname || !email) {
                 return "";
             }
 
-            if (payid) {
-                return `${name}\n${email}\n\nPayID: ${payid}`;
-            }
-            else {
-                return `${name}\n${email}\n\nAccount: ${account}\nBSB:     ${bsb}`;
-            }
+            return `${name}\n${email}`;
         }
 
 
@@ -205,19 +116,19 @@
                 confirmSendButton.disabled = true;
                 confirmSendButton.textContent = 'Sending...';
 
-                const paymentData = `${totalPaymentData()}\n\nAdditional metadata (NOT AUTHORITATIVE): ${sessionCode}, ${participantCode}, ${paymentCode}, ${amount}\n`;
-                
+                const contactData = `${totalContactData()}\n\nAdditional metadata (NOT AUTHORITATIVE): ${sessionCode}, ${participantCode}, ${paymentCode}, ${amount}\n`;
+
                 const publicKey = await openpgp.readKey({ armoredKey: pubkey });
-                
+
                 const encrypted = await openpgp.encrypt({
-                    message: await openpgp.createMessage({ text: paymentData }),
+                    message: await openpgp.createMessage({ text: contactData }),
                     encryptionKeys: publicKey,
                 });
 
                 hiddenField.value = encrypted.replaceAll("\r", "").replaceAll("\n", "|");
-                
+
                 document.querySelector('form').submit();
-                
+
             } catch (error) {
                 console.error('Failed to process:', error);
                 confirmSendButton.disabled = false;
@@ -225,125 +136,39 @@
             }
         });
 
-        // Form validation and UI interaction
-        const payidSection = document.getElementById('payidSection');
-        const bankSection = document.getElementById('bankSection');
-        const payidMethod = document.getElementById('payidMethod');
-        const bankMethod = document.getElementById('bankMethod');
-        const paymentMethodError = document.getElementById('paymentMethodError');
-
-        // Show/hide payment method sections
-        payidMethod.addEventListener('change', function() {
-            if (this.checked) {
-                payidSection.style.display = 'block';
-                bankSection.style.display = 'none';
-                // Clear bank fields
-                document.getElementById('account').value = '';
-                document.getElementById('bsb').value = '';
-                document.getElementById('account').classList.remove('is-invalid');
-                document.getElementById('bsb').classList.remove('is-invalid');
-                paymentMethodError.style.display = 'none';
-            }
-        });
-
-        bankMethod.addEventListener('change', function() {
-            if (this.checked) {
-                bankSection.style.display = 'block';
-                payidSection.style.display = 'none';
-                // Clear PayID field
-                document.getElementById('payid').value = '';
-                document.getElementById('payid').classList.remove('is-invalid');
-                paymentMethodError.style.display = 'none';
-            }
-        });
-
-        // BSB formatting
-        document.getElementById('bsb').addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length > 3) {
-                value = value.substring(0, 3) + '-' + value.substring(3, 6);
-            }
-            this.value = value;
-        });
-
-        // Account number validation (numbers only)
-        document.getElementById('account').addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '');
-        });
-
-        // PayID validation
-        function validatePayID(payid) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const mobileRegex = /^04\d{8}$/;
-            return emailRegex.test(payid) || mobileRegex.test(payid);
-        }
-
-        // Enhanced form validation
+        // Form validation
         function validateForm() {
             let isValid = true;
-            
+
             // Reset all validation states
             document.querySelectorAll('.form-control').forEach(field => {
                 field.classList.remove('is-invalid', 'is-valid');
             });
-            paymentMethodError.style.display = 'none';
 
             // Validate required fields
             const fname = document.getElementById('fname');
             const lname = document.getElementById('lname');
             const email = document.getElementById('email');
-            
+
             if (!fname.value.trim()) {
                 fname.classList.add('is-invalid');
                 isValid = false;
             } else {
                 fname.classList.add('is-valid');
             }
-            
+
             if (!lname.value.trim()) {
                 lname.classList.add('is-invalid');
                 isValid = false;
             } else {
                 lname.classList.add('is-valid');
             }
-            
+
             if (!email.value.trim() || !email.checkValidity()) {
                 email.classList.add('is-invalid');
                 isValid = false;
             } else {
                 email.classList.add('is-valid');
-            }
-
-            // Validate payment method selection
-            if (!payidMethod.checked && !bankMethod.checked) {
-                paymentMethodError.style.display = 'block';
-                isValid = false;
-            } else if (payidMethod.checked) {
-                const payid = document.getElementById('payid');
-                if (!payid.value.trim() || !validatePayID(payid.value.trim())) {
-                    payid.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    payid.classList.add('is-valid');
-                }
-            } else if (bankMethod.checked) {
-                const account = document.getElementById('account');
-                const bsb = document.getElementById('bsb');
-                
-                if (!account.value.trim() || !/^[0-9]{6,10}$/.test(account.value.trim())) {
-                    account.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    account.classList.add('is-valid');
-                }
-                
-                const bsbValue = bsb.value.replace('-', '');
-                if (!bsbValue || !/^[0-9]{6}$/.test(bsbValue)) {
-                    bsb.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    bsb.classList.add('is-valid');
-                }
             }
 
             return isValid;
@@ -352,7 +177,7 @@
         // Override submit button to include validation
         submitButton.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             if (!validateForm()) {
                 // Scroll to first invalid field
                 const firstInvalid = document.querySelector('.is-invalid');
@@ -364,15 +189,15 @@
             }
 
             const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-            const paymentData = totalPaymentData();
-            
-            if (!paymentData) {
+            const contactData = totalContactData();
+
+            if (!contactData) {
                 return;
             }
 
-            dataPreview.textContent = paymentData;
+            dataPreview.textContent = contactData;
             confirmationModal.show();
         });
     </script>
 
-{{ endblock }}
+    {{ endblock }}
