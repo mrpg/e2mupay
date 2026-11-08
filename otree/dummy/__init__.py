@@ -25,7 +25,7 @@ class Player(BasePlayer):
 
 def creating_session(subsession):
     for player in subsession.get_players():
-        player.participant.vars["e2mupay_amount"] = cu(17.42)
+        player.participant.vars["e2mupay_amount"] = 17.42
 
 
 page_sequence = []
