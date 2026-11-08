@@ -12,10 +12,10 @@ from datetime import datetime, timezone
 from otree.api import *
 
 doc = """
-E²MU Payment App 1
+E²MU Payment App (start)
 """
 
-__version__ = "3.0.0"
+__version__ = "4.0.0"
 
 
 def init():
@@ -29,14 +29,23 @@ def init():
         "openpgp.min.js",
     ]
 
-    if all(os.path.exists(f"{target}/{f}") for f in files_to_check):
-        pass
-    else:
+    with tarfile.open(package, "r:*") as tar:
+        # Refresh stale keys and library files when the bundled archive changes.
+        for filename in files_to_check:
+            path = f"{target}/{filename}"
+            if not os.path.isfile(path):
+                break
+            member = f"e2mupay/{filename}"
+            with open(path, "rb") as current, tar.extractfile(member) as bundled:
+                if current.read() != bundled.read():
+                    break
+        else:
+            return
+
         if os.path.exists(target):
             shutil.rmtree(target)
 
-        with tarfile.open(package, "r:*") as tar:
-            tar.extractall("_static")
+        tar.extractall("_static")
 
 
 class C(BaseConstants):

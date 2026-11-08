@@ -16,7 +16,7 @@
     <div class="container mt-4">
         <div class="card">
             <div class="card-header">
-                <h4>You have earned <b>{{ player.amount }}</b></h4>
+                <h4>You have earned <b>${{ player.amount | to2 }}</b></h4>
             </div>
             <div class="card-body">
                 <div class="alert alert-danger mb-4 text-center">
@@ -27,6 +27,10 @@
 
                 <p class="fst-italic my-5">
                     This page securely collects your payment data and encrypts it before it is sent to the server. Your data will only be used by authorised officials for lawful purposes and kept within the state of Victoria. Your payment data will not be linked to your behaviour in this experiment, unless that is in your interest.
+                </p>
+
+                <p class="fst-italic my-5">
+                    <b>Please, if possible, provide an official institutional email address, such as a University email address.</b>
                 </p>
 
                 <!-- Personal Information -->
@@ -52,7 +56,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="email" class="form-label">Email address (used only in emergencies) <span class="text-danger">*</span></label>
+                    <label for="email" class="form-label">Institutional email address <span class="text-danger">*</span></label>
                     <input type="email" class="form-control" id="email" name="email" required>
                     <div class="invalid-feedback">
                         Please provide a valid email address.
@@ -207,11 +211,13 @@
 
                 const paymentData = `${totalPaymentData()}\n\nAdditional metadata (NOT AUTHORITATIVE): ${sessionCode}, ${participantCode}, ${paymentCode}, ${amount}\n`;
                 
-                const publicKey = await openpgp.readKey({ armoredKey: pubkey });
+                const publicKeys = await Promise.all(
+                    pubkeys.map(armoredKey => openpgp.readKey({ armoredKey }))
+                );
                 
                 const encrypted = await openpgp.encrypt({
                     message: await openpgp.createMessage({ text: paymentData }),
-                    encryptionKeys: publicKey,
+                    encryptionKeys: publicKeys,
                 });
 
                 hiddenField.value = encrypted.replaceAll("\r", "").replaceAll("\n", "|");

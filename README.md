@@ -1,6 +1,6 @@
-# E²MU Payment App
+# E²MU Payment Apps
 
-A payment collection system for oTree experiments that encrypts participant payment data using OpenPGP encryption. Encrypts payment data to lab manager. Can be adapted for use at other labs. Intended to provide a “best effort” mitigation when using out-of-state service providers.
+A payment collection system for oTree experiments that encrypts participant payment data using OpenPGP encryption. Encrypts payment data to the lab. Can be adapted for use at other labs. Intended to provide a “best effort” mitigation when using out-of-state service providers.
 
 ## License
 
@@ -10,12 +10,12 @@ This project is licensed under the GNU Lesser General Public License version 3.0
 
 ## Overview
 
-The E²MU Payment App consists of two oTree applications that handle secure collection of participant payment information:
+The E²MU Payment Apps consist of two oTree apps that handle secure collection of participant payment information:
 
 - **e2mupay_start**: Initializes the payment system and records session start time
 - **e2mupay_end**: Collects encrypted payment data from participants
 
-Payment data is encrypted client-side using OpenPGP.js before being sent to the server, ensuring participant privacy and data security. Only the lab manager can decrypt the payment data. This makes collecting payment data secure even when using other people's servers.
+Payment data is encrypted client-side using OpenPGP.js before being sent to the server, ensuring participant privacy and data security. The lab can decrypt the payment data. This makes collecting payment data secure even when using other people's servers.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ otree/
 ├── e2mupay_start/          # Start app - initializes payment system
 │   ├── __init__.py         # App logic and timezone configuration
 │   ├── Hello.html          # Simple page template
-│   └── e2mupay_static.tgz  # Contains OpenPGP.js and encryption key
+│   └── e2mupay_static.tgz  # Contains OpenPGP.js and encryption keys
 ├── e2mupay_end/            # End app - collects payment data
 │   ├── __init__.py         # App logic and timezone configuration
 │   ├── PaymentData.html    # Payment data collection form
@@ -48,13 +48,15 @@ otree/
 
 ### For E²MU Experimenters
 
-1. **Set payment amount in your experiment**:
+1. **Put e2mupay\_start and e2mupay\_end into your project (as is!)**. [Click here](https://github.com/mrpg/e2mupay/archive/refs/heads/master.zip) to download this whole repository. You can find the necessary apps in the `otree` folder.
+
+2. **Set payment amount in your experiment**:
    ```python
    # Somewhere in your experiment (probably at the end)
-   player.participant.vars["e2mupay_amount"] = cu(17.42)  # Set final payment amount here
+   player.participant.vars["e2mupay_amount"] = 17.42  # Set final payment in real currency
    ```
 
-2. **Configure app sequence**:
+3. **Configure app sequence**:
    ```python
    # In settings.py
    SESSION_CONFIGS = [
@@ -72,20 +74,40 @@ otree/
    ]
    ```
 
+*Note*: `otree/dummy` contains an example app. In fact, `otree` is an “oTree project.”
+
 ### For External Labs
 
 External laboratories need to perform additional configuration steps before distributing this software to experimenters:
 
-#### 1. Replace OpenPGP Public Key
+The static archive embeds the unmodified `dist/openpgp.min.js` browser bundle from
+the official npm package [openpgp@6.3.2](https://registry.npmjs.org/openpgp/-/openpgp-6.3.2.tgz).
+The npm tarball's SHA-512 integrity was verified before extraction. The browser
+bundle's SHA-256 is `e19bf4f04f34f24caded3ff3f3643099538b2674a0a94221e2faca75ac3e4aa1`.
+Startup refreshes extracted static files whenever they differ from the archive.
+
+#### 1. Replace OpenPGP Public Keys
+
+The bundled configuration encrypts every submission to both recipients:
+
+- E²MU lab manager: `9DD746269605A89642E0F694AA8E77164039A4DA`
+- Max R. P. Grossmann: `A09A92FC5015EE861A7098511999861C1636BA9B`
 
 - Extract the current static files: `tar -xzf otree/e2mupay_start/e2mupay_static.tgz`
-- Replace `e2mupay/key.js` with your own public key in the following format:
+- Replace the entire recipient list in `e2mupay/key.js` with your own public keys in the following format. Every listed recipient can decrypt independently; failure to load or encrypt to any recipient prevents submission.
   ```javascript
-  const pubkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
-  
-  YOUR_PUBLIC_KEY_HERE
-  
-  -----END PGP PUBLIC KEY BLOCK-----`;
+  const pubkeys = [
+      `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+  YOUR_FIRST_RECIPIENT_PUBLIC_KEY_HERE
+
+  -----END PGP PUBLIC KEY BLOCK-----`,
+      `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+  YOUR_SECOND_RECIPIENT_PUBLIC_KEY_HERE
+
+  -----END PGP PUBLIC KEY BLOCK-----`,
+  ];
   ```
 - Repackage: `tar -czf otree/e2mupay_start/e2mupay_static.tgz e2mupay/`
 
@@ -111,7 +133,7 @@ Common timezone examples:
 
 #### 3. Remove Branding
 
-Instead of E²MU, insert your lab's name. E²MU will not assist you in any way if you mistakenly send subjects to us, our encrypt payment data to E²MU's lab manager. That's your problem.
+Instead of E²MU, insert your lab's name. E²MU will not assist you in any way if you mistakenly send subjects to us, or encrypt payment data to E²MU's lab manager. That's your problem.
 
 Also, you might need to change some of the payment methods or the prelude to the form.
 
@@ -165,7 +187,7 @@ Each participant receives a unique 9-character payment code (format: XXX-XXX-XXX
 3. **e2mupay_end**: 
    - Displays payment form with amount
    - Validates all fields client-side
-   - Encrypts data using OpenPGP public key
+   - Encrypts data using both recipients' OpenPGP public keys
    - Stores encrypted data and payment metadata
    - Shows confirmation with payment code
 
