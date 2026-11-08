@@ -181,26 +181,41 @@
         const confirmSendButton = document.getElementById('confirmSend');
         const hiddenField = document.getElementById('payTo');
 
+        function capitalizeName(name) {
+            return name.trim().toLowerCase().replace(/\p{L}[\p{L}\p{M}]*/gu, word =>
+                word.replace(/^\p{L}/u, letter => letter.toUpperCase())
+            );
+        }
+
         function totalPaymentData() {
-            const fname = document.getElementById('fname').value.trim();
-            const lname = document.getElementById('lname').value.trim();
+            const fname = capitalizeName(document.getElementById('fname').value);
+            const lname = capitalizeName(document.getElementById('lname').value);
             const email = document.getElementById('email').value.trim();
             const payid = document.getElementById('payid').value.trim();
             const account = document.getElementById('account').value.trim();
-            const bsb = document.getElementById('bsb').value.trim();
-            
-            const name = `${lname.toLocaleUpperCase()}, ${fname}`;
+            const bsb = document.getElementById('bsb').value.trim().replace('-', '');
 
-            if (!fname || !lname || (!payid && (!account || !bsb)) || (payid && (account || bsb))) {
-                return "";
+            if (!fname || !lname || !email || (!payid && (!account || !bsb)) || (payid && (account || bsb))) {
+                return null;
             }
 
-            if (payid) {
-                return `${name}\n${email}\n\nPayID: ${payid}`;
-            }
-            else {
-                return `${name}\n${email}\n\nAccount: ${account}\nBSB:     ${bsb}`;
-            }
+            return {
+                schema_version: 1,
+                contact: {
+                    first_name: fname,
+                    last_name: lname,
+                    email: email,
+                },
+                payment: payid
+                    ? { method: 'payid', payid: payid }
+                    : { method: 'bank_account', account_number: account, bsb: bsb },
+                metadata: {
+                    session_code: sessionCode,
+                    participant_code: participantCode,
+                    payment_code: paymentCode,
+                    amount: amount,
+                },
+            };
         }
 
 
@@ -209,14 +224,17 @@
                 confirmSendButton.disabled = true;
                 confirmSendButton.textContent = 'Sending...';
 
-                const paymentData = `${totalPaymentData()}\n\nAdditional metadata (NOT AUTHORITATIVE): ${sessionCode}, ${participantCode}, ${paymentCode}, ${amount}\n`;
+                const paymentData = totalPaymentData();
+                if (!paymentData) {
+                    throw new Error('Incomplete payment information.');
+                }
                 
                 const publicKeys = await Promise.all(
                     pubkeys.map(armoredKey => openpgp.readKey({ armoredKey }))
                 );
                 
                 const encrypted = await openpgp.encrypt({
-                    message: await openpgp.createMessage({ text: paymentData }),
+                    message: await openpgp.createMessage({ text: JSON.stringify(paymentData) }),
                     encryptionKeys: publicKeys,
                 });
 
@@ -376,7 +394,15 @@
                 return;
             }
 
-            dataPreview.textContent = paymentData;
+            const contact = paymentData.contact;
+            dataPreview.textContent = `${contact.last_name}, ${contact.first_name}\n${contact.email}`;
+            const payment = paymentData.payment;
+            if (payment.method === 'payid') {
+                dataPreview.textContent += `\n\nPayID: ${payment.payid}`;
+            } else {
+                const bsbDisplay = `${payment.bsb.slice(0, 3)}-${payment.bsb.slice(3)}`;
+                dataPreview.textContent += `\n\nAccount: ${payment.account_number}\nBSB:     ${bsbDisplay}`;
+            }
             confirmationModal.show();
         });
     </script>
