@@ -34,12 +34,12 @@
                     <b>Please, if possible, provide an official institutional email address, such as a University email address.</b>
                 </p>
 
-                <!-- Personal Information -->
+                <!-- Contact inputs deliberately have no name attribute: their plaintext is never submitted -->
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="fname" class="form-label">First name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="fname" name="fname" required>
+                            <input type="text" class="form-control" id="fname" required>
                             <div class="invalid-feedback">
                                 Please provide a valid first name.
                             </div>
@@ -48,7 +48,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="lname" class="form-label">Last name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="lname" name="lname" required>
+                            <input type="text" class="form-control" id="lname" required>
                             <div class="invalid-feedback">
                                 Please provide a valid last name.
                             </div>
@@ -58,7 +58,7 @@
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Institutional email address <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control" id="email" name="email" required onpaste="return false;">
+                    <input type="email" class="form-control" id="email" required onpaste="return false;">
                     <div class="invalid-feedback">
                         Please provide a valid email address.
                     </div>
@@ -68,7 +68,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="email_confirm" class="form-label">Confirm email address <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control" id="email_confirm" name="email_confirm" required onpaste="return false;">
+                    <input type="email" class="form-control" id="email_confirm" required onpaste="return false;">
                     <div class="invalid-feedback">
                         Email addresses do not match.
                     </div>
@@ -137,7 +137,7 @@
             }
 
             return {
-                schema_version: 1,
+                platform: "otree",
                 contact: {
                     first_name: fname,
                     last_name: lname,
