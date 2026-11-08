@@ -1,0 +1,251 @@
+{% extends "Base.html" %}
+
+{% block title %}
+{% endblock title %}
+
+
+{% block head %}
+
+<script src="{{ appstatic('openpgp.min.js') }}"></script>
+<script src="{{ appstatic('key.js') }}"></script>
+
+{% endblock head %}
+
+
+{% block main %}
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h4>You have earned <b>${{ amount_display }}</b></h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger mb-4 text-center">
+            <p>Please take a screenshot or note the following payment code until you have received your payment:</p>
+            <p class="display-4 font-monospace fw-bold">{{ code_display }}</p>
+            <p class="fw-bold mb-0">You should quote this payment code whenever contacting E²MU about your payment.</p>
+        </div>
+
+        <p class="fst-italic my-5">
+            This page securely collects your contact information and encrypts it before it is sent to the server. Your data will only be used by authorised officials for lawful purposes and kept within the state of Victoria. Your contact data will not be linked to your behaviour in this experiment, unless that is in your interest.
+        </p>
+
+        <p class="fst-italic my-5">
+            These data will be used to invite you to submit your payment data through an official University system. Please ensure your contact data are fully correct.
+            <b>Please, if possible, provide an official institutional email address, such as a University email address.</b>
+        </p>
+
+        <!-- Contact inputs deliberately have no name attribute: their plaintext is never submitted -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="fname" class="form-label">First name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="fname" autocomplete="off" required>
+                    <div class="invalid-feedback">
+                        Please provide a valid first name.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="lname" class="form-label">Last name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="lname" autocomplete="off" required>
+                    <div class="invalid-feedback">
+                        Please provide a valid last name.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Institutional email address <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email" autocomplete="off" required onpaste="return false;">
+            <div class="invalid-feedback">
+                Please provide a valid email address.
+            </div>
+            <div class="alert alert-warning mt-2 py-2 px-3 d-none" id="emailEduWarning">
+                <small>Please kindly consider using your official institutional email address (ending in <strong>.edu.au</strong>). Institutional email addresses tend to be more reliable, which helps ensure you receive your payment invitation.</small>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="email_confirm" class="form-label">Confirm email address <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email_confirm" autocomplete="off" required onpaste="return false;">
+            <div class="invalid-feedback">
+                Email addresses do not match.
+            </div>
+        </div>
+
+        {{ button_next(type="button", id="submitButton", class_="btn btn-primary btn-lg", label="Submit") }}
+    </div>
+</div>
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Review Contact Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Please review your contact information:</p>
+                <div class="border p-3 bg-light">
+                    <pre id="dataPreview" style="white-space: pre-wrap; margin: 0;"></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmSend">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="e2mupay_pay_to" id="payTo" value="">
+
+<script>
+    const contactInputs = ["fname", "lname", "email", "email_confirm"].map(id => I(id));
+    const submitButton = I("submitButton");
+    const dataPreview = I("dataPreview");
+    const confirmSendButton = I("confirmSend");
+    const hiddenField = I("payTo");
+    const emailEduWarning = I("emailEduWarning");
+
+    I("email").addEventListener("blur", function() {
+        const val = this.value.trim().toLowerCase();
+        if (val.length > 0 && !val.endsWith(".edu.au")) {
+            emailEduWarning.classList.remove("d-none");
+        } else {
+            emailEduWarning.classList.add("d-none");
+        }
+    });
+
+    // Pressing Enter in a contact input validates and opens the review instead of submitting
+    contactInputs.forEach(input => input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            submitButton.click();
+        }
+    }));
+
+    function capitalizeName(name) {
+        return name.trim().toLowerCase().replace(/\p{L}[\p{L}\p{M}]*/gu, word =>
+            word.replace(/^\p{L}/u, letter => letter.toUpperCase())
+        );
+    }
+
+    function totalContactData() {
+        const fname = capitalizeName(I("fname").value);
+        const lname = capitalizeName(I("lname").value);
+        const email = I("email").value.trim();
+
+        if (!fname || !lname || !email) {
+            return null;
+        }
+
+        return {
+            platform: "uproot",
+            contact: {
+                first_name: fname,
+                last_name: lname,
+                email: email,
+            },
+            metadata: uproot.vars.e2mupay_metadata,
+        };
+    }
+
+    confirmSendButton.addEventListener("click", async function() {
+        try {
+            confirmSendButton.disabled = true;
+            confirmSendButton.textContent = "Sending...";
+
+            const contactData = totalContactData();
+            if (!contactData) {
+                throw new Error("Incomplete contact information.");
+            }
+
+            const publicKeys = await Promise.all(
+                pubkeys.map(armoredKey => openpgp.readKey({ armoredKey }))
+            );
+
+            const encrypted = await openpgp.encrypt({
+                message: await openpgp.createMessage({ text: JSON.stringify(contactData) }),
+                encryptionKeys: publicKeys,
+                config: {
+                    preferredCompressionAlgorithm: openpgp.enums.compression.zlib
+                },
+            });
+
+            hiddenField.value = encrypted.replaceAll("\r", "").replaceAll("\n", "|");
+
+            uproot.submit();
+        } catch (error) {
+            console.error("Failed to process:", error);
+            confirmSendButton.disabled = false;
+            confirmSendButton.textContent = "Send";
+        }
+    });
+
+    function validateForm() {
+        let isValid = true;
+
+        contactInputs.forEach(field => field.classList.remove("is-invalid", "is-valid"));
+
+        const fname = I("fname");
+        const lname = I("lname");
+        const email = I("email");
+        const emailConfirm = I("email_confirm");
+
+        if (!fname.value.trim()) {
+            fname.classList.add("is-invalid");
+            isValid = false;
+        } else {
+            fname.classList.add("is-valid");
+        }
+
+        if (!lname.value.trim()) {
+            lname.classList.add("is-invalid");
+            isValid = false;
+        } else {
+            lname.classList.add("is-valid");
+        }
+
+        if (!email.value.trim() || !email.checkValidity()) {
+            email.classList.add("is-invalid");
+            isValid = false;
+        } else {
+            email.classList.add("is-valid");
+        }
+
+        if (!emailConfirm.value.trim() || emailConfirm.value.trim().toLowerCase() !== email.value.trim().toLowerCase()) {
+            emailConfirm.classList.add("is-invalid");
+            isValid = false;
+        } else {
+            emailConfirm.classList.add("is-valid");
+        }
+
+        return isValid;
+    }
+
+    submitButton.addEventListener("click", function(e) {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            const firstInvalid = document.querySelector(".is-invalid");
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+                firstInvalid.focus();
+            }
+            return;
+        }
+
+        const contactData = totalContactData();
+        if (!contactData) {
+            return;
+        }
+
+        const contact = contactData.contact;
+        dataPreview.textContent = `${contact.last_name}, ${contact.first_name}\n${contact.email}`;
+        bootstrap.Modal.getOrCreateInstance(I("confirmationModal")).show();
+    });
+</script>
+
+{% endblock main %}

@@ -1,0 +1,27 @@
+{% extends "Base.html" %}
+{% set buttons = False %}
+
+{% block title %}
+Thank you
+{% endblock title %}
+
+
+{% block main %}
+
+{% if player.e2mupay_pay_to %}
+<p>Your payment data have been saved.</p>
+{% else %}
+<div class="alert alert-warning">
+    <p class="mb-0">Your payment data were <b>not</b> received because the time limit was reached. Please contact E²MU and quote the payment code below.</p>
+</div>
+{% endif %}
+
+<div class="alert alert-danger mb-4 text-center">
+    <p>Please ensure you keep this payment code until you have received your payment:</p>
+    <p class="display-4 font-monospace fw-bold">{{ code_display }}</p>
+    <p class="fw-bold mb-0">You should quote this payment code whenever contacting E²MU about your payment.</p>
+</div>
+
+<p>This study has completed.</p>
+
+{% endblock main %}

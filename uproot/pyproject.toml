@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uproot-project"
+version = "0.1.0"
+description = "An uproot-based web application for behavioral science experiments"
+readme = "README.md"
+license = "0BSD"
+requires-python = ">=3.12"
+dependencies = [
+    "uproot-science @ git+https://github.com/mrpg/uproot.git@main",
+    "black",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "ruff",
+]
+
+[tool.setuptools]
+packages = []
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff.lint]
+ignore = ["F403", "F405", "RUF012", "C408", "BLE001"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+ignore_missing_imports = true
+
+[tool.uv]
+python-preference = "system"
