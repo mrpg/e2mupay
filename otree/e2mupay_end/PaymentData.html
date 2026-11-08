@@ -121,18 +121,35 @@
             }
         });
 
+        function capitalizeName(name) {
+            return name.trim().toLowerCase().replace(/\p{L}[\p{L}\p{M}]*/gu, word =>
+                word.replace(/^\p{L}/u, letter => letter.toUpperCase())
+            );
+        }
+
         function totalContactData() {
-            const fname = document.getElementById('fname').value.trim();
-            const lname = document.getElementById('lname').value.trim();
+            const fname = capitalizeName(document.getElementById('fname').value);
+            const lname = capitalizeName(document.getElementById('lname').value);
             const email = document.getElementById('email').value.trim();
 
-            const name = `${lname.toLocaleUpperCase()}, ${fname}`;
-
             if (!fname || !lname || !email) {
-                return "";
+                return null;
             }
 
-            return `${name}\n${email}`;
+            return {
+                schema_version: 1,
+                contact: {
+                    first_name: fname,
+                    last_name: lname,
+                    email: email,
+                },
+                metadata: {
+                    session_code: sessionCode,
+                    participant_code: participantCode,
+                    payment_code: paymentCode,
+                    amount: amount,
+                },
+            };
         }
 
 
@@ -141,14 +158,17 @@
                 confirmSendButton.disabled = true;
                 confirmSendButton.textContent = 'Sending...';
 
-                const contactData = `${totalContactData()}\n\nAdditional metadata (NOT AUTHORITATIVE): ${sessionCode}, ${participantCode}, ${paymentCode}, ${amount}\n`;
+                const contactData = totalContactData();
+                if (!contactData) {
+                    throw new Error('Incomplete contact information.');
+                }
 
                 const publicKeys = await Promise.all(
                     pubkeys.map(armoredKey => openpgp.readKey({ armoredKey }))
                 );
 
                 const encrypted = await openpgp.encrypt({
-                    message: await openpgp.createMessage({ text: contactData }),
+                    message: await openpgp.createMessage({ text: JSON.stringify(contactData) }),
                     encryptionKeys: publicKeys,
                     config: {                                                        
                         preferredCompressionAlgorithm: openpgp.enums.compression.zlib
@@ -233,7 +253,8 @@
                 return;
             }
 
-            dataPreview.textContent = contactData;
+            const contact = contactData.contact;
+            dataPreview.textContent = `${contact.last_name}, ${contact.first_name}\n${contact.email}`;
             confirmationModal.show();
         });
     </script>

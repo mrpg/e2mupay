@@ -156,9 +156,17 @@ The contact form collects:
 
 **This step is only ever performed by the lab manager.**
 
-The data from the column `e2mupay_end.1.player.pay_to` can be decrypted on GNU/Linux using `sed 's/|/\n/g' | gpg`. Note how `|` is replaced by newline.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and ensure GnuPG (`gpg`) and Git are available. `decrypt.py` declares its dependency on [python-gnupg at commit `d107c34b652680ed0df07f14b0837f2e587d1b1e`](https://github.com/vsajip/python-gnupg/commit/d107c34b652680ed0df07f14b0837f2e587d1b1e) in inline script metadata; uv installs that exact revision automatically.
 
-The script `decrypt.py` contains a function that does this for you (useful for batch processing, requires [python-gnupg](https://github.com/vsajip/python-gnupg)).
+Save a single ciphertext from the column `e2mupay_end.1.player.pay_to` to `ciphertext.txt`, then run from the repository root:
+
+```bash
+uv run decrypt.py < ciphertext.txt
+```
+
+The script reads standard input, accepts either pipe-separated ciphertext (as exported by oTree) or normal multiline OpenPGP armor, and prints indented JSON with Unicode characters preserved. GnuPG uses your usual keyring and prompts for the private key's passphrase if needed. For batch processing, the `decrypt(ciphertext)` function still returns a dictionary.
+
+The helper expects JSON; older plaintext submissions can still be decrypted directly with `sed 's/|/\n/g' < ciphertext.txt | gpg`.
 
 ### Data Security
 
@@ -198,13 +206,30 @@ The `Player` model in `e2mupay_end` stores:
 
 ### Encryption Format
 
-Encrypted data contains:
-```
-LASTNAME, Firstname
-email@example.com
+The OpenPGP plaintext is a UTF-8 JSON object with schema version 1:
 
-Additional metadata (NOT AUTHORITATIVE): session_code, participant_code, payment_code, amount
+```json
+{
+  "schema_version": 1,
+  "contact": {
+    "first_name": "Bratan",
+    "last_name": "Milošević",
+    "email": "gros@unimelb.edu.au"
+  },
+  "metadata": {
+    "session_code": "quji75yy",
+    "participant_code": "ar0munwt",
+    "payment_code": "7LYRMFBDR",
+    "amount": "17.42"
+  }
+}
 ```
+
+Names are trimmed and each word is capitalized, including words separated by hyphens or apostrophes; the remaining letters are lowercased. The confirmation preview uses the same names.
+
+Metadata is **not authoritative**; use the corresponding oTree export fields for payment reconciliation. Codes and the decimal amount are strings. The payment code has no display dashes.
+
+JSON is serialized in the browser before encryption. The `pay_to` field still stores an armored OpenPGP message with newlines replaced by `|`.
 
 ## Notes
 
