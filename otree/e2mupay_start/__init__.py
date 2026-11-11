@@ -15,8 +15,6 @@ doc = """
 E²MU Payment App (start)
 """
 
-__version__ = "4.0.0"
-
 
 def init():
     target = "_static/e2mupay"  # DO NOT CHANGE THIS
