@@ -18,8 +18,6 @@ from uproot.smithereens import *
 DESCRIPTION = "E²MU Payment App"
 LANDING_PAGE = False
 
-__version__ = "4.0.0"
-
 
 class C:
     TIMEZONE = "Australia/Melbourne"

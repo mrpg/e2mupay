@@ -16,8 +16,6 @@ doc = """
 E²MU Payment App (end)
 """
 
-__version__ = "4.0.0"
-
 
 class C(BaseConstants):
     NAME_IN_URL = "e2mupay_end"
